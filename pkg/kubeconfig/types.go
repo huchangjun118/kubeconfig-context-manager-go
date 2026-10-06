@@ -22,6 +22,28 @@ type Config struct {
 	// It is used to produce explainable override reports and precise
 	// conflict diagnostics. Not serialized.
 	sources map[string]map[string]string
+
+	// path is the file this config was loaded from ("" if built in
+	// memory). Not serialized.
+	path string
+}
+
+// filePath returns the path the config was loaded from, or a stable
+// placeholder for in-memory configs so diagnostics stay readable.
+func (c *Config) filePath() string {
+	if c == nil || c.path == "" {
+		return "<memory>"
+	}
+	return c.path
+}
+
+// SourceOf reports which file defined the named entry in a section
+// ("clusters", "users", "contexts" or "extensions"), or "" if unknown.
+func (c *Config) SourceOf(section, name string) string {
+	if c.sources == nil {
+		return ""
+	}
+	return c.sources[section][name]
 }
 
 // Preferences holds kubectl-style preferences. Unknown keys are kept.
